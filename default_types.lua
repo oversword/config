@@ -1,15 +1,17 @@
-
+-- Transform a value by passing it through the given function
 config.register_transformer_type("function",
 	function (setting_transformer, setting_value, setting_name, setting_opts)
 		return setting_transformer(setting_value, setting_name, setting_opts)
 	end)
 
+-- Transform a value by looking it up in the given table
 config.register_transformer_type("table",
 	function (setting_transformer, setting_value, setting_name, setting_opts)
 		return setting_transformer[setting_value]
 	end)
 
 
+-- Used by enum, value must be in list of values, or nil is returned
 local function one_of(value, values)
 	for _,allowed in ipairs(values) do
 		if value == allowed then
@@ -18,6 +20,7 @@ local function one_of(value, values)
 	end
 end
 
+-- Used by number types (int, float), limits a number between min and max
 local function limit_value(value, min, max)
 	if min then
 		value = math.max(value, min)
@@ -28,6 +31,7 @@ local function limit_value(value, min, max)
 	return value
 end
 
+-- Used by vector type, limits a table of numbers to min and max
 local function limit_values(values, min, max)
 	local return_values = {}
 	for key,value in pairs(values) do
@@ -36,7 +40,7 @@ local function limit_values(values, min, max)
 	return return_values
 end
 
-
+-- Not used, merges new table into def table
 local function merge_table(def, new)
 	for k,v in pairs(new) do
 		-- If key-value table, recurse
@@ -49,6 +53,7 @@ local function merge_table(def, new)
 	return def
 end
 
+-- Used by table type, parses an arbitrary table using
 local function parse_table(str)
 	if not str then return end
 	str = string.gsub(str, '%(', '{')
@@ -56,10 +61,12 @@ local function parse_table(str)
 	return minetest.deserialize('return '..str)
 end
 
+-- Used by list type, trims spaces from the ends of strings
 local function trim_string(input)
    return (input:gsub("^%s*(.-)%s*$", "%1"))
 end
 
+-- Used by list type, split a string by any separator
 local function split_string(inputstr, sep)
 	sep = sep or '%s'
 	local t = {}
@@ -71,6 +78,7 @@ local function split_string(inputstr, sep)
 	end
 end
 
+-- Not used (yet), transforms a color string into its number
 local function color_string_to_number(color)
 	if string.sub(color,1,1) == '#' then
 		color = string.sub(color, 2)
@@ -87,6 +95,7 @@ local function color_string_to_number(color)
 end
 
 
+-- Pre-existing minetest types
 config.register_type({ "string", "str" })
 
 config.register_type({ "enumerable", "enum" }, function (val, setting_default, setting_opts)
@@ -136,6 +145,8 @@ config.register_type({ "boolean", "bool" },
 		return minetest.setting_getbool(setting_name, setting_default)
 	end)
 
+
+-- Custom datatypes, parsed from strings
 config.register_type({ "colour", "color" }, function (val, setting_default, setting_opts)
 	return val or setting_default
 end)
