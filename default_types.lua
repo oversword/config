@@ -53,29 +53,12 @@ local function merge_table(def, new)
 	return def
 end
 
--- Used by table type, parses an arbitrary table using
+-- Used by table type, parses an arbitrary table using lua table syntax
 local function parse_table(str)
 	if not str then return end
-	str = string.gsub(str, '%(', '{')
-	str = string.gsub(str, '%)', '}')
+	-- str = string.gsub(str, '%(', '{')
+	-- str = string.gsub(str, '%)', '}')
 	return minetest.deserialize('return '..str)
-end
-
--- Used by list type, trims spaces from the ends of strings
-local function trim_string(input)
-   return (input:gsub("^%s*(.-)%s*$", "%1"))
-end
-
--- Used by list type, split a string by any separator
-local function split_string(inputstr, sep)
-	sep = sep or '%s'
-	local t = {}
-	for field, s in string.gmatch(inputstr, "([^"..sep.."]*)("..sep.."?)") do
-		table.insert(t, field)
-		if s=="" then
-			return t
-		end
-	end
 end
 
 -- Not used (yet), transforms a color string into its number
@@ -154,13 +137,17 @@ end)
 config.register_type({ "list", "array", "multiple" }, function (val, setting_default, setting_opts)
 	if not val then return setting_default end
 
-	local split_val = split_string(val, setting_opts.separator or ',')
-	if not setting_opts.type then return split_val end
+	local split_val = string.split(val, setting_opts.separator or ',', true)
+	local trimmed_val = {}
+	for _, sv in ipairs(split_val) do
+		table.insert(trimmed_val, string.trim(sv))
+	end
+	if not setting_opts.type then return trimmed_val end
 
 	local sub_val_parser = setting_opts.type().parser
 	local sub_val_transformer = setting_opts.type().parser
 	local out_val = {}
-	for i,v in ipairs(split_val) do
+	for i,v in ipairs(trimmed_val) do
 		table.insert(out_val, sub_val_transformer(i, sub_val_parser(v)))
 	end
 	return out_val

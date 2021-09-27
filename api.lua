@@ -91,16 +91,19 @@ function config.settings_model(root_name, settings_config, all_names)
 		err("A settings model config must be a table, %s given.", type(settings_config))
 	end
 
-	-- If there is not a list of names (on the entry call), then get all the names MT knows about
-	if not all_names then
-		all_names = minetest.settings:get_names()
-	end
+	local setting_names
+	if minetest.settings then
+		-- If there is not a list of names (on the entry call), then get all the names MT knows about
+		if not all_names then
+			all_names = minetest.settings:get_names()
+		end
 
-	-- Filter the list of names to only those relevat to this namespace & level
-	local setting_names = {}
-	for _,name in ipairs(all_names) do
-		if string.find(name, root_name) then
-			table.insert(setting_names, name)
+		-- Filter the list of names to only those relevat to this namespace & level
+		setting_names = {}
+		for _,name in ipairs(all_names) do
+			if string.find(name, root_name) then
+				table.insert(setting_names, name)
+			end
 		end
 	end
 
@@ -186,18 +189,18 @@ function config.register_type(names, parser, getter)
 	end
 	for _,name in ipairs(names) do
 		if type(name) ~= "string" then
-			error(string.format("All data type names must be strings, %s given", type(name)))
+			err("All data type names must be strings, %s given", type(name))
 		end
 	end
 
 	-- Parser must be a function
 	if parser ~= nil and type(parser) ~= "function" then
-		error(string.format("Data type parser must be a function, %s given", type(parser)))
+		err("Data type parser must be a function, %s given", type(parser))
 	end
 
 	-- Getter must be a function
 	if getter ~= nil and type(getter) ~= "function" then
-		error(string.format("Data type getter must be a function, %s given", type(getter)))
+		err("Data type getter must be a function, %s given", type(getter))
 	end
 
 	-- Create a new type generator
