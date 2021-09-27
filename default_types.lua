@@ -145,10 +145,11 @@ config.register_type({ "list", "array", "multiple" }, function (val, setting_def
 	if not setting_opts.type then return trimmed_val end
 
 	local sub_val_parser = setting_opts.type().parser
-	local sub_val_transformer = setting_opts.type().parser
+	local sub_val_transformer = setting_opts.type().transformer
 	local out_val = {}
 	for i,v in ipairs(trimmed_val) do
-		table.insert(out_val, sub_val_transformer(i, sub_val_parser(v)))
+		if v == "" then v = nil end
+		out_val[i] = sub_val_transformer(i, sub_val_parser(v))
 	end
 	return out_val
 end)
