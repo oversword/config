@@ -92,7 +92,7 @@ function config.settings_model(root_name, settings_config, all_names)
 	end
 
 	local setting_names
-	if minetest.settings then
+	if minetest.settings and minetest.settings.get_names then
 		-- If there is not a list of names (on the entry call), then get all the names MT knows about
 		if not all_names then
 			all_names = minetest.settings:get_names()

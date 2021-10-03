@@ -35,7 +35,15 @@ end
 local function limit_values(values, min, max)
 	local return_values = {}
 	for key,value in pairs(values) do
-		return_values[key] = limit_value(value, min, max)
+		local min_val = min
+		local max_val = max
+		if type(min) == 'table' then
+			min_val = min[key]
+		end
+		if type(max) == 'table' then
+			max_val = max[key]
+		end
+		return_values[key] = limit_value(value, min_val, max_val)
 	end
 	return return_values
 end
@@ -106,17 +114,11 @@ end)
 
 config.register_type({ "vector", "vec3", "vec", "position", "pos", "v3f" },
 	function (val, setting_default, setting_opts)
+		val = minetest.string_to_pos(val)
 		if val then
 			return vector.new(limit_values(val, setting_opts.min, setting_opts.max))
 		end
 		return setting_default
-	end,
-	function (setting_name)
-		if minetest.settings then
-			return minetest.string_to_pos(minetest.settings:get(setting_name))
-		else
-			return minetest.setting_get_pos(setting_name)
-		end
 	end)
 
 config.register_type({ "boolean", "bool" },
