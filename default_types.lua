@@ -139,21 +139,39 @@ end)
 config.register_type({ "list", "array", "multiple" }, function (val, setting_default, setting_opts)
 	if not val then return setting_default end
 
+	-- Parse array from string
 	local split_val = string.split(val, setting_opts.separator or ',', true)
 	local trimmed_val = {}
 	for _, sv in ipairs(split_val) do
 		table.insert(trimmed_val, string.trim(sv))
 	end
-	if not setting_opts.type then return trimmed_val end
 
-	local sub_val_parser = setting_opts.type().parser
-	local sub_val_transformer = setting_opts.type().transformer
-	local out_val = {}
-	for i,v in ipairs(trimmed_val) do
-		if v == "" then v = nil end
-		out_val[i] = sub_val_transformer(i, sub_val_parser(v))
+	-- Limit array to certain length
+	local limited_val = trimmed_val
+	if setting_opts.length then
+		limited_val = {}
+		for i=1,setting_opts.length do
+			if trimmed_val[i] == nil then
+				limited_val[i] = ""
+			else
+				limited_val[i] = trimmed_val[i]
+			end
+		end
 	end
-	return out_val
+
+	-- Transform array members
+	local transformed_val = limited_val
+	if setting_opts.type then
+		transformed_val = {}
+		local sub_val_parser = setting_opts.type().parser
+		local sub_val_transformer = setting_opts.type().transformer
+		for i,v in ipairs(limited_val) do
+			if v == "" then v = nil end
+			transformed_val[i] = sub_val_transformer(i, sub_val_parser(v))
+		end
+	end
+
+	return transformed_val
 end)
 
 config.register_type({ "table", "luatable" }, function (val, setting_default, setting_opts)

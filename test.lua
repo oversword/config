@@ -514,6 +514,32 @@ describe("Config", function ()
 				assert_equal({ test_config = { "jahsf", "ad", nil, "asfa", "sdf" } }, result)
 			end)
 
+			it("discards extra values beyond the set length", function ()
+				local settings_get_stub = stub(function () return " jahsf,ad,asfa,sdf" end)
+				minetest.settings = { get=settings_get_stub.call }
+
+				local result = config.settings_model("test_root", {
+					test_config = config.types.list({}, { type = config.types.string(), length=3 })
+				})
+				settings_get_stub.called_times(1)
+				settings_get_stub.called_with(minetest.settings, "test_root.test_config")
+
+				assert_equal({ test_config = { "jahsf", "ad", "asfa" } }, result)
+			end)
+
+			it("defaults extra values up to the set length", function ()
+				local settings_get_stub = stub(function () return " jahsf,ad" end)
+				minetest.settings = { get=settings_get_stub.call }
+
+				local result = config.settings_model("test_root", {
+					test_config = config.types.list({}, { type = config.types.string('hello'), length=3 })
+				})
+				settings_get_stub.called_times(1)
+				settings_get_stub.called_with(minetest.settings, "test_root.test_config")
+
+				assert_equal({ test_config = { "jahsf", "ad", "hello" } }, result)
+			end)
+
 		end)
 
 		describe("Table", function ()
@@ -571,4 +597,4 @@ describe("Config", function ()
 end)
 
 
-test.execute()
+test.execute(true)
