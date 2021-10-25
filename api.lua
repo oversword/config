@@ -153,7 +153,7 @@ end
 	If the setting this reads from is set to "east", then the final result will be 3
 	If the setting this reads from is not set, then the final result will be 2 (because "north" is the default, and maps to 2)
 
-	Note that type here is "string", the type of the data read in from the settings, NOT the type of the data it will be transformed into. This type can be anything and is of no concern ot this system.
+	Note that type here is "string", the type of the data read in from the settings, NOT the type of the data it will be transformed into. This type can be anything and is of no concern to this system.
 ]]
 function config.register_transformer_type(type_string, type_transformer)
 

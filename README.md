@@ -61,7 +61,7 @@ Parse all the settings in the structure of the settings_config given
 ```lua
 config.register_type(names[, parser, getter])
 ```
-Register a new data type
+Register a new data type, see "Default Types" (below) for examples of what this can be used for
 
 1. `string|string[]`: `names` | The name, or list of names for this type. Each type can have multiple aliases that all map to the same thing, e.g. bool, boolean
 1. `function`       : `parser` | The function that will parse the data retrieved from the settings, can be used to parse lists and other data types from strings
@@ -73,33 +73,10 @@ Register a new data type
 ```lua
 config.register_transformer_type(type_string, type_transformer)
 ```
-Register a custom transformer type
+Register a custom transformer type, see "Transformer Types" (below) for more information
 
 1. `string`  : `type_string` | The name of the type this transformer will accept as its first argument (user_given_mapping), there can only be one for each type
 1. `function`: `type_transformer` | The type_transformer should be a function that takes the arguments `(user_given_mapping, setting_value, setting_name, setting_opts)`` and returns the transformed value
-
-Transformer types are for mappings from human input values to computer values - so you input human values in the settings and have them mapped into the correspoding computer values in the final settings table
-
-A use for this would be mapping `"south", "west", "north", "east"` into numbers representing the param2 for facedir, `0, 1, 2, 3`.
-This would be accomplished by adding a transformer for the table (this should already be available in the default types):
-```lua
-config.register_transformer_type("table",
-function (user_given_mapping, setting_value, setting_name, setting_opts)
-	return user_given_mapping[setting_value]
-end)
-```
-
-Then creating a type with the table mapping as the third argument
-```lua
-initial_orientation = config.types.string("north", nil, { south=0, west=1, north=2, east=3 })
-```
-
-If the setting this reads from is set to "east", then the final result will be 3
-If the setting this reads from is not set, then the final result will be 2 (because "north" is the default, and maps to 2)
-
-Note that type here is "string", the type of the data read in from the settings, NOT the type of the data it will be transformed into. This type can be anything and is of no concern ot this system.
-
-
 
 ## Default Types
 
@@ -206,3 +183,33 @@ A literal lua table, will be parsed from the serialised string
 * `luatable`
 #### Settings
 None
+
+
+## Transformer Types
+
+Transformer types are for mappings from human input values to computer values - so you input human values in the settings and have them mapped into the correspoding computer values in the final settings table
+
+A use for this would be mapping `"south", "west", "north", "east"` into numbers representing the param2 for facedir, `0, 1, 2, 3`.
+This would be accomplished by adding a transformer for the table (this should already be available in the default types):
+```lua
+config.register_transformer_type("table",
+function (user_given_mapping, setting_value, setting_name, setting_opts)
+	return user_given_mapping[setting_value]
+end)
+```
+
+Then creating a type with the table mapping as the third argument
+```lua
+initial_orientation = config.types.string("north", nil, { south=0, west=1, north=2, east=3 })
+```
+
+If the setting this reads from is set to "east", then the final result will be 3
+If the setting this reads from is not set, then the final result will be 2 (because "north" is the default, and maps to 2)
+
+Note that type here is "string", the type of the data read in from the settings, NOT the type of the data it will be transformed into. This type can be anything and is of no concern to this system.
+
+### Table Transformer
+A table transformer will look the config value up in the table you provide, as the key in the table, it will return the corresponding value.
+
+### Function Transformer
+A function transformer will pass the config value into the function you provide, along with the name of the config value and the settings object passed into the data type definition
