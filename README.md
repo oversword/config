@@ -34,8 +34,6 @@ print(dump(settings))
 
 ## API
 
----
-
 ### Create a type instance
 ```lua
 config.types.some_type(default_value[, setting_options, setting_transformer])
@@ -105,7 +103,7 @@ Note that type here is "string", the type of the data read in from the settings,
 
 ## Default Types
 
-You can create your own data types using `config.register_type` (see above), but there are many that come built-in.
+You can create your own data types using `config.register_type` (see above), but there are many that come built-in:
 
 ---
 
