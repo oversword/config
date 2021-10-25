@@ -170,9 +170,9 @@ A list of values, all with the same type. Separated by a comma by default, but c
 * `array`
 * `multiple`
 #### Settings
-* `string` : `separator` |
-* `number` : `length` |
-* `type`   : `type` |
+* `string` : `separator` | The character the list is separated by
+* `number` : `length` | The fixed length of the list. If provided any extra values will be discarded and any missing values will be filled in by the default
+* `type`   : `type` | The data type of the members of the list, defined through `config.types...`
 
 ---
 
